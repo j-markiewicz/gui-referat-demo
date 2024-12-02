@@ -1,78 +1,84 @@
 from fluent.runtime import FluentLocalization, FluentResourceLoader
-import dearpygui.dearpygui as imgui
+from imgui.integrations.pygame import PygameRenderer
+import OpenGL.GL as gl
+import imgui
+import pygame
+import sys
 
-
+# Fluent setup
 loader = FluentResourceLoader("l10n/{locale}")
 localization = FluentLocalization(["en"], ["demo.ftl"], loader)
 
+# ImGui backend setup
+pygame.init()
+size = 800, 600
 
-def set_locale(locale):
-    global localization
-    localization = FluentLocalization([locale, "en"], ["demo.ftl"], loader)
-    # TODO: there has to be a better way to do this
-    imgui.delete_item("main-window")
-    imgui.delete_item("config-window")
-    render(locale)
+pygame.display.set_mode(
+    size, pygame.DOUBLEBUF | pygame.OPENGL | pygame.RESIZABLE
+)
 
-
+# ImGui setup
 imgui.create_context()
-imgui.create_viewport(width=1280, height=720)
+impl = PygameRenderer()
 
-with imgui.font_registry():
-    with imgui.font("FiraSans.ttf", 24) as font:
-        imgui.add_font_range(0x20, 0x1EFF)
-        imgui.bind_font(font)
+io = imgui.get_io()
+io.display_size = size
 
+new_font = io.fonts.add_font_from_file_ttf(
+    "FiraSans.ttf", 24, glyph_ranges=io.fonts.get_glyph_ranges_latin()
+)
+impl.refresh_font_texture()
 
-def render(locale):
-    with imgui.window(
-        tag="main-window",
-        label=localization.format_value("label-main"),
-        autosize=True,
-    ):
-        imgui.add_text(
-            localization.format_value("close-tabs", {"count": 3}),
-            tag="close-tabs",
-        )
-        imgui.add_checkbox(
-            label=localization.format_value("confirm"), default_value=True
-        )
+# UI/application state
+checkbox = True
+n_tabs = 3
+locale_idx = 0
+locales = ["en", "pl"]
 
-        with imgui.group(horizontal=True):
-            imgui.add_button(label=localization.format_value("close"))
-            imgui.add_button(label=localization.format_value("cancel"))
+# Render loop
+while True:
+    # Event handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit(0)
+        impl.process_event(event)
+    impl.process_inputs()
 
-    with imgui.window(
-        tag="config-window",
-        label=localization.format_value("label-config"),
-        autosize=True,
-    ):
-        imgui.add_text(localization.format_value("n-tabs"))
-        imgui.add_slider_int(
-            tag="n-tabs",
-            default_value=3,
-            min_value=2,
-            max_value=30,
-            clamped=True,
-            callback=lambda: imgui.set_value(
-                "close-tabs",
-                localization.format_value(
-                    "close-tabs", {"count": imgui.get_value("n-tabs")}
-                ),
-            ),
-        )
-        imgui.add_text(localization.format_value("select-language"))
-        imgui.add_combo(
-            ("en", "pl"),
-            tag="locale",
-            default_value=locale,
-            callback=lambda: set_locale(imgui.get_value("locale")),
+    # ImGui frame rendering
+    imgui.new_frame()
+    with imgui.font(new_font):
+        # Main window
+        imgui.begin(localization.format_value("label-main"), True)
+
+        imgui.text(localization.format_value("close-tabs", {"count": n_tabs}))
+        checkbox = imgui.checkbox(
+            localization.format_value("confirm"), checkbox
         )
 
+        imgui.button(localization.format_value("close"))
+        imgui.same_line()
+        imgui.button(localization.format_value("cancel"))
 
-render("en")
+        imgui.end()
 
-imgui.setup_dearpygui()
-imgui.show_viewport()
-imgui.start_dearpygui()
-imgui.destroy_context()
+        # Configuration window
+        imgui.begin(localization.format_value("label-config"), True)
+
+        imgui.text(localization.format_value("n-tabs"))
+        _, n_tabs = imgui.slider_int("", n_tabs, 2, 30)
+
+        imgui.text(localization.format_value("select-language"))
+        clicked, locale_idx = imgui.combo("", locale_idx, locales)
+        if clicked:
+            localization = FluentLocalization(
+                [locales[locale_idx], "en"], ["demo.ftl"], loader
+            )
+
+        imgui.end()
+
+    # Render frame
+    gl.glClearColor(0.1, 0.1, 0.1, 1)
+    gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+    imgui.render()
+    impl.render(imgui.get_draw_data())
+    pygame.display.flip()
