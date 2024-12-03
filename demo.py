@@ -48,7 +48,7 @@ while True:
     imgui.new_frame()
     with imgui.font(new_font):
         # Main window
-        imgui.begin(localization.format_value("label-main"), True)
+        imgui.begin(f"{localization.format_value('label-main')}##main", True)
 
         imgui.text(localization.format_value("close-tabs", {"count": n_tabs}))
         _, checked = imgui.checkbox(
@@ -62,13 +62,15 @@ while True:
         imgui.end()
 
         # Configuration window
-        imgui.begin(localization.format_value("label-config"), True)
+        imgui.begin(
+            f"{localization.format_value('label-config')}##config", True
+        )
 
         imgui.text(localization.format_value("n-tabs"))
-        _, n_tabs = imgui.slider_int("", n_tabs, 2, 30)
+        _, n_tabs = imgui.slider_int("##n-tabs", n_tabs, 2, 30)
 
         imgui.text(localization.format_value("select-language"))
-        clicked, locale_idx = imgui.combo("", locale_idx, locales)
+        clicked, locale_idx = imgui.combo("##locale", locale_idx, locales)
         if clicked:
             localization = FluentLocalization(
                 [locales[locale_idx], "en"], ["demo.ftl"], loader
