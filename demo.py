@@ -12,7 +12,7 @@ localization = FluentLocalization(["en"], ["demo.ftl"], loader)
 
 # ImGui backend setup
 pygame.init()
-size = 800, 600
+size = 1280, 720
 
 pygame.display.set_mode(
     size, pygame.DOUBLEBUF | pygame.OPENGL | pygame.RESIZABLE
@@ -26,7 +26,7 @@ io = imgui.get_io()
 io.display_size = size
 
 new_font = io.fonts.add_font_from_file_ttf(
-    "FiraSans.ttf", 24, glyph_ranges=io.fonts.get_glyph_ranges_latin()
+    "FiraSans.ttf", 48, glyph_ranges=io.fonts.get_glyph_ranges_latin()
 )
 impl.refresh_font_texture()
 
