@@ -1,8 +1,9 @@
 from fluent.runtime import FluentLocalization, FluentResourceLoader
 from imgui.integrations.pygame import PygameRenderer
 import OpenGL.GL as gl
-import imgui
+import datetime
 import pygame
+import imgui
 import sys
 
 # Fluent setup
@@ -75,6 +76,15 @@ while True:
             localization = FluentLocalization(
                 [locales[locale_idx], "en"], ["demo.ftl"], loader
             )
+
+        imgui.end()
+
+        # Current datetime
+        imgui.begin(f"{localization.format_value('label-datetime')}##datetime")
+
+        imgui.text(
+            localization.format_value("now", {"now": datetime.datetime.now()})
+        )
 
         imgui.end()
 
