@@ -79,11 +79,13 @@ while True:
 
         imgui.end()
 
-        # Current datetime
-        imgui.begin(f"{localization.format_value('label-datetime')}##datetime")
+        # Current date
+        imgui.begin(f"{localization.format_value('label-date')}##date")
 
         imgui.text(
-            localization.format_value("now", {"now": datetime.datetime.now()})
+            localization.format_value(
+                "now", {"now": datetime.datetime.now().date()}
+            )
         )
 
         imgui.end()
