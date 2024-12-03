@@ -4,8 +4,8 @@ label-config = Configuration
 select-language = Language
 n-tabs = Number of tabs
 
-label-datetime = Date and Time
-now = It's currently {$now}
+label-date = Date
+now = Today is {$now}
 
 close = Close tabs
 cancel = Cancel

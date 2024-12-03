@@ -4,8 +4,8 @@ label-config = Konfiguracja
 select-language = Język
 n-tabs = Liczba kart
 
-label-datetime = Data i Czas
-now = Teraz jest {$now}
+label-date = Data
+now = Dzisiaj jest {$now}
 
 close = Zamknij karty
 cancel = Anuluj
