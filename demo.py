@@ -30,7 +30,7 @@ new_font = io.fonts.add_font_from_file_ttf(
 impl.refresh_font_texture()
 
 # UI/application state
-checkbox = True
+checked = True
 n_tabs = 3
 locale_idx = 0
 locales = ["en", "pl"]
@@ -51,8 +51,8 @@ while True:
         imgui.begin(localization.format_value("label-main"), True)
 
         imgui.text(localization.format_value("close-tabs", {"count": n_tabs}))
-        checkbox = imgui.checkbox(
-            localization.format_value("confirm"), checkbox
+        _, checked = imgui.checkbox(
+            localization.format_value("confirm"), checked
         )
 
         imgui.button(localization.format_value("close"))
